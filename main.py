@@ -24,3 +24,5 @@ metronometrains = [train for train in trains_in_this_hour if train.train_type ==
 Delayed_metronom_trains_LG_to_HH = [train for train in metronometrains if
                                     train.stations == "Winsen(Luhe)|Hamburg-Harburg|Hamburg Hbf"]   #sortiere Liste von Metronom Zügen nach Zielbahnhof
 print(trains_with_changes)
+
+# hallo hallo hallo
