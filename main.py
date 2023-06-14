@@ -4,7 +4,7 @@ from deutsche_bahn_api.api_authentication import ApiAuthentication
 from deutsche_bahn_api.station_helper import StationHelper
 from deutsche_bahn_api.timetable_helper import TimetableHelper
 
-api = ApiAuthentication("ID", "SECRET")
+api = ApiAuthentication("4d92b50e16b9e7a97f9a95d55a08570e", "3ac2ae0cd903b5aa9315ebf338addbaf")
 success: bool = api.test_credentials()
 
 station_helper = StationHelper()
