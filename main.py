@@ -29,3 +29,15 @@ print(trains_with_changes)
 
 #Erster Kommentar vom GITGott Lukas
 
+print("Delayed Metronom Trains from Lüneburg to Hamburg:")
+for i, train in enumerate(Delayed_metronom_trains_LG_to_HH):
+    print(f"{i} = {train}")
+    print(f"  departure = {train.departure}")
+    print(f"  platform = {train.platform}")
+    print(f"  stations = {train.stations}")
+    print(f"  stop_id = {train.stop_id}")
+    print(f"  train_changes = {train.train_changes}")
+    print(f"  train_line = {train.train_line}")
+    print(f"  train_number = {train.train_number}")
+    print(f"  train_type = {train.train_type}")
+    print(f"  trip_type = {train.trip_type}")
