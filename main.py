@@ -41,3 +41,4 @@ for i, train in enumerate(Delayed_metronom_trains_LG_to_HH):
     print(f"  train_number = {train.train_number}")
     print(f"  train_type = {train.train_type}")
     print(f"  trip_type = {train.trip_type}")
+    print(f"  trip_type = {train.trip_type}")
