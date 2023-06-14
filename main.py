@@ -26,3 +26,6 @@ Delayed_metronom_trains_LG_to_HH = [train for train in metronometrains if
 print(trains_with_changes)
 
 # hallo hallo hallo
+
+#Erster Kommentar vom GITGott Lukas
+
