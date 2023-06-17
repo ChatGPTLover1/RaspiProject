@@ -10,6 +10,8 @@ from telepot.loop import MessageLoop
 api = ApiAuthentication("4d92b50e16b9e7a97f9a95d55a08570e", "3ac2ae0cd903b5aa9315ebf338addbaf")
 success: bool = api.test_credentials()
 Bahnhof = "Hamburg Hbf" # default station
+Uhrzeit = 0 #
+
 station_helper = StationHelper()
 station_helper.load_stations()
 # found_stations = station_helper.find_stations_by_lat_long(47.996713, 7.842174, 10)
@@ -17,14 +19,14 @@ found_stations_by_name = station_helper.find_stations_by_name(Bahnhof)
 station = found_stations_by_name[0]
 
 timetable_helper = TimetableHelper(station=station, api_authentication=api)
-trains_in_this_hour = timetable_helper.get_timetable()
+trains_in_this_hour = timetable_helper.get_timetable(Uhrzeit)
 # trains_at_given_hour = timetable_helper.get_timetable(12)
 
 trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour)
 
 
 
-def updatePlan(Bahnhof):
+def updateBahnhof(Bahnhof):
     global found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes
     station_helper = StationHelper()
     station_helper.load_stations()
@@ -37,8 +39,7 @@ def updatePlan(Bahnhof):
         return 0
 
     timetable_helper = TimetableHelper(station=station, api_authentication=api)
-    trains_in_this_hour = timetable_helper.get_timetable()
-    # trains_at_given_hour = timetable_helper.get_timetable(12)
+
 
     trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour)
 
@@ -70,6 +71,21 @@ def updatePlan(Bahnhof):
 
 # Telegram Teil Update
 # Token des Telegram-Bots
+def updateUhrzeit(Uhrzeit):
+    global found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes
+    station_helper = StationHelper()
+    station_helper.load_stations()
+    # found_stations = station_helper.find_stations_by_lat_long(47.996713, 7.842174, 10)
+
+    timetable_helper = TimetableHelper(station=station, api_authentication=api)
+    trains_in_this_hour = timetable_helper.get_timetable(Uhrzeit)
+    # trains_at_given_hour = timetable_helper.get_timetable(12)
+
+    trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour)
+
+    return 1   #no error
+
+
 telegram_bot_token = '5903546968:AAGV8-1QjiyYa3SpGh0R_QfC_N0rxB7OUvs'
 
 # Chat-ID des Empfängers - Lukas Bot aktuell
@@ -97,33 +113,43 @@ def reverse_split(string):
 
 
 def handle_messages(msg):
-    global Bahnhof, found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes
+    global Bahnhof, found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes, Uhrzeit
     content_type, chat_type, chat_id = telepot.glance(
         msg)  # Python-Telegram function that returns the values message type, chat type  and chat id from a telegram message
     if content_type == 'text':  # glance checks the message type. If the type is in the form of text, we have a valid message
         if msg['text'] == 'Züge':  # user input
             for i, train in enumerate(trains_in_this_hour):
-                message = f"Zug {i+1} \n departure= {reverse_split(train.departure)} \n  platform = {train.platform} \n stations = {train.stations} \n  train_changes = {train.train_changes} \n " \
+                message = f"Zug {i+1} \n departure= {reverse_split(train.departure)} \n  platform = {train.platform} \n stations = {train.stations} \n  " \
                           f"train_number = {train.train_number} \n train_type = {train.train_type} \n "
 
                 bot.sendMessage(telegram_chat_id, message)
 
-        if msg['text'] == 'help':  # user is kind
-            message = f"Menü: 1. Züge \nMenü: 2. Bahnhof"  # bot prepares a welcoming message
+        if msg['text'] == 'hilfe':  # user is kind
+            message = f"Menü:\n1. Züge - zeigt alle züge in der angegebenen Stunde an\n2. Bahnhof [neuer Bahnhof]\n ändert den aktuellen Bahnhof\n" \
+                      f"\n3. Uhrzeit [neue Uhrzeit]\n ändert die Uhrezit für den Zeitplan.\n Für die aktuelle Uhrzeit 0 eingeben\n"  # bot prepares a welcoming message
             bot.sendMessage(telegram_chat_id, message)  # and sends it
 
         if msg['text']:
             message = msg['text']
             if message.startswith('Bahnhof'):  # set station
                 Bahnhof = message.split(' ', 1)[1]
-                if updatePlan(Bahnhof) ==1:
-                    updatePlan(Bahnhof)
+                if updateBahnhof(Bahnhof) ==1:
+                    updateBahnhof(Bahnhof)
                     message = "Dein gewählter Bahnhof ist: " + Bahnhof
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
-                    print(f"  return  = {updatePlan(Bahnhof)}")
                 else:
                     message = "Fehlerhafte Eingabe. Bitte überprüfe den Namen des Bahnhofs"
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
+
+        if msg['text']:
+            message = msg['text']
+            if message.startswith('Uhrzeit'):  # set station
+                Uhrzeit = message.split(' ', 1)[1]
+                updateUhrzeit(Uhrzeit)
+                message = "Deine gewählte Uhrzeit ist: " + Uhrzeit +":00"
+                bot.sendMessage(telegram_chat_id, message)  # and sends it
+
+
 
 
 
