@@ -22,36 +22,56 @@ trains_in_this_hour = timetable_helper.get_timetable()
 trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour)
 
 # Hier gehts los mit der Sortierung
-metronometrains = [train for train in trains_in_this_hour if
-                   train.train_type == "ME"]  # sortiere  die Liste nach dem Zugtyp Metronom
-Delayed_metronom_trains_LG_to_HH = [train for train in metronometrains if
-                                    train.stations == "Winsen(Luhe)|Hamburg-Harburg|Hamburg Hbf"]  # sortiere Liste von Metronom Zügen nach Zielbahnhof
-print(trains_with_changes)
+#metronometrains = [train for train in trains_in_this_hour if
+#                   train.train_type == "ME"]  # sortiere  die Liste nach dem Zugtyp Metronom
+#Delayed_metronom_trains_LG_to_HH = [train for train in metronometrains if
+#                                    train.stations == "Winsen(Luhe)|Hamburg-Harburg|Hamburg Hbf"]  # sortiere Liste von Metronom Zügen nach Zielbahnhof
+#print(trains_with_changes)
 
 # hallo hallo hallo
 
 # Erster Kommentar vom GITGott Lukas
 
 # Hier erfolgt eine Ausgabe auf der Konsole
-print("Delayed Metronom Trains from Lüneburg to Hamburg:")
-for i, train in enumerate(Delayed_metronom_trains_LG_to_HH):
-    print(f"{i} = {train}")
-    print(f"  departure = {train.departure}")
-    print(f"  platform = {train.platform}")
-    print(f"  stations = {train.stations}")
-    print(f"  stop_id = {train.stop_id}")
-    print(f"  train_changes = {train.train_changes}")
-    print(f"  train_line = {train.train_line}")
-    print(f"  train_number = {train.train_number}")
-    print(f"  train_type = {train.train_type}")
-    print(f"  trip_type = {train.trip_type}")
+#print("Delayed Metronom Trains from Lüneburg to Hamburg:")
+#for i, train in enumerate(Delayed_metronom_trains_LG_to_HH):
+#    print(f"{i} = {train}")
+#    print(f"  departure = {train.departure}")
+#    print(f"  platform = {train.platform}")
+#    print(f"  stations = {train.stations}")
+#    print(f"  stop_id = {train.stop_id}")
+#    print(f"  train_changes = {train.train_changes}")
+#    print(f"  train_line = {train.train_line}")
+#    print(f"  train_number = {train.train_number}")
+#    print(f"  train_type = {train.train_type}")
+#    print(f"  trip_type = {train.trip_type}")
 
 # Telegram Teil Update
 # Token des Telegram-Bots
-telegram_bot_token = '6021930981:AAFhsTB6Ahe7MXtCh6R20EnyltWi_Q10MZs'
+telegram_bot_token = '5903546968:AAGV8-1QjiyYa3SpGh0R_QfC_N0rxB7OUvs'
 
 # Chat-ID des Empfängers - Lukas Bot aktuell
-telegram_chat_id = '6235783485'
+telegram_chat_id = '5877570960'
+
+def reverse_split(string):
+
+    msg_year = string[0]; #year
+    msg_year2 = string[1];  # year
+
+    msg_month = string[2]; #month
+    msg_month2 = string[3];  # month
+
+    msg_day = string[4]; #day
+    msg_day2 = string[5];  # day
+
+    msg_hour = string[6]; #hour
+    msg_hour2 = string[7];  # hour
+
+    msg_minute = string[8]; #minute
+    msg_minute2 = string[9];  # minute
+
+    msg = msg_hour + msg_hour2 + ":" + msg_minute +msg_minute2 + "   " +msg_day + msg_day2 +"."+ msg_month + msg_month2 +"."+ msg_year + msg_year2
+    return msg
 
 
 def handle_messages(msg):
@@ -60,16 +80,10 @@ def handle_messages(msg):
     if content_type == 'text':  # glance checks the message type. If the type is in the form of text, we have a valid message
         if msg['text'] == 'Züge':  # user input
             for i, train in enumerate(trains_in_this_hour):
-                print(f"{i} = {train}")
-                print(f"  departure = {train.departure}")
-                print(f"  platform = {train.platform}")
-                print(f"  stations = {train.stations}")
-                print(f"  stop_id = {train.stop_id}")
-                print(f"  train_changes = {train.train_changes}")
-                print(f"  train_line = {train.train_line}")
-                print(f"  train_number = {train.train_number}")
-                print(f"  train_type = {train.train_type}")
-                print(f"  trip_type = {train.trip_type}")
+                message = f"Zug {i} \n departure= {reverse_split(train.departure)} \n  platform = {train.platform} \n stations = {train.stations} \n  train_changes = {train.train_changes} \n " \
+                          f"train_number = {train.train_number} \n train_type = {train.train_type} \n "
+
+                bot.sendMessage(telegram_chat_id, message)
 
         if msg['text'] == 'Moin':  # user is kind
             message = f"Menü: 1. Züge"  # bot prepares a welcoming message
