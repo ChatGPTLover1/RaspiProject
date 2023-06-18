@@ -110,9 +110,16 @@ def reverse_split(string):
     msg = msg_hour + msg_hour2 + ":" + msg_minute +msg_minute2 + "   " +msg_day + msg_day2 +"."+ msg_month + msg_month2 +"."+ msg_year + msg_year2
     return msg
 
+def delay(train):
+    if hasattr(train.train_changes,"departure"):
+        delay = int(train.train_changes.departure) - int(train.departure)
+        return delay
+    else:
+        return 0
 
 def handle_messages(msg):
     global Bahnhof, found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes, Uhrzeit
+    global meinBahnhof, zielBahnhof
     content_type, chat_type, chat_id = telepot.glance(
         msg)  # Python-Telegram function that returns the values message type, chat type  and chat id from a telegram message
     if content_type == 'text':  # glance checks the message type. If the type is in the form of text, we have a valid message
@@ -150,12 +157,21 @@ def handle_messages(msg):
 
         if msg['text'] == 'Verspätung':
             for i, train in enumerate(trains_with_changes):
-                if (int(train.train_changes.departure) - int(train.departure)) >= 5:
+                if delay(train) >= 5:
                     message = f"Zug {i + 1} \n departure= {reverse_split(train.train_changes.departure)} \n Verspätung = {int(train.train_changes.departure) - int(train.departure)} Minuten\n" \
                               f"platform = {train.platform} \n stations = {train.stations} \n  " \
                             f"train_number = {train.train_number} \n train_type = {train.train_type} \n "
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
 
+        if msg['text']:
+            message = msg['text']
+            if message.startswith('watch'):  # set station
+                meinBahnhof = message.split(':', 2)[1]
+                zielBahnhof = message.split(':', 2)[2]
+                message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof}"
+                bot.sendMessage(telegram_chat_id, message)  # and sends it
+
+#def watchBahnhof(meinBahnhof,zielBahnhof):
 
 
 
