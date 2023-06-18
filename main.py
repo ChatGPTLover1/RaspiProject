@@ -144,7 +144,7 @@ def handle_messages(msg):
                     message = "Dein gewählter Bahnhof ist: " + Bahnhof
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
                 else:
-                    message = "Fehlerhafte Eingabe. Bitte überprüfe den Namen des Bahnhofs"
+                    message = "Fehlerhafte Eingabe. Bitte überprüfe den Namen des Bahnhofs."
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
 
         if msg['text']:
@@ -166,13 +166,22 @@ def handle_messages(msg):
         if msg['text']:
             message = msg['text']
             if message.startswith('watch'):  # set station
-                meinBahnhof = message.split(':', 2)[1]
-                zielBahnhof = message.split(':', 2)[2]
-                message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof}"
-                bot.sendMessage(telegram_chat_id, message)  # and sends it
+                meinBahnhof = message.split(':', 3)[1]
+                zielBahnhof = message.split(':', 3)[2]
+                Zeit = int(message.split(':', 3)[3])
+                try:
+                        station_helper.find_stations_by_name(meinBahnhof)[0] #check if station name exists
+                        station_helper.find_stations_by_name(zielBahnhof)[0]  # check if station name exists
+                        if 0 <= Zeit <= 24:
+                            message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof} um {Zeit} Uhr"
+                            bot.sendMessage(telegram_chat_id, message)  # and sends it
+                        else:
+                            message = f"Fehlerhafte Eingabe. Bitte überprüfe die eingegebene Uhrzeit."
+                            bot.sendMessage(telegram_chat_id, message)  # and sends it
 
-#def watchBahnhof(meinBahnhof,zielBahnhof):
-
+                except:
+                    message = f"Fehlerhafte Eingabe. Bitte überprüfe die Namen der Bahnhöfe."
+                    bot.sendMessage(telegram_chat_id, message)  # and sends it
 
 
 # initialize Telegram-Bot
