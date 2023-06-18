@@ -156,13 +156,15 @@ def handle_messages(msg):
                       f"   - zeigt alle züge in der angegebenen Stunde an\n\n" \
                       f"2. Bahnhof [neuer Bahnhof]\n" \
                       f"   - ändert den aktuellen Bahnhof\n\n" \
-                      f"3. Uhrzeit [neue Uhrzeit]\n" \
-                      f"   - ändert die Uhrezit für den Zeitplan.Für die aktuelle Uhrzeit 0 eingeben\n\n" \
+                      f"3. Uhrzeit [neue Uhrzeit(stunde)]\n" \
+                      f"   - ändert die Uhrzeit für den Zeitplan.Für die aktuelle Uhrzeit 0 eingeben\n\n" \
                       f"4. Verspätung\n" \
                       f"   - zeigt alle Verspätungen am eingestellten Bahnhof zur eingestellten Uhrzeit an.\n\n" \
                       f"5. watch:[start Bahnhof]:[ziel Bahnhof]:[Stunde]:[Minute]\n" \
                       f"   - startet die Überwachung für die gegebene Zugverbindung. Sobald eine Verspätung von über" \
-                      f" 5 Minuten erkannt wurde, wird eine Nachricht geschickt und die Überwachung beendet."
+                      f" 5 Minuten erkannt wurde, wird eine Nachricht geschickt und die Überwachung beendet." \
+                      f"6. info\n" \
+                      f"   - zeigt den eingestellten Bahnhof und Uhrzeit an."
             bot.sendMessage(telegram_chat_id, message)  # and sends it
 
         if msg['text']:# handle Bahnhof command
@@ -180,10 +182,18 @@ def handle_messages(msg):
         if msg['text']:# handle Uhrzeit command
             message = msg['text']
             if message.startswith('Uhrzeit'):  # set station
-                Uhrzeit = message.split(' ', 1)[1]
-                updateUhrzeit(Uhrzeit)
-                message = "Deine gewählte Uhrzeit ist: " + Uhrzeit +":00"
-                bot.sendMessage(telegram_chat_id, message)  # and sends it
+                buffer = message.split(' ', 1)[1]
+                if buffer.isnumeric(): #check if there are only numbers in the string
+                    if 0<= int(buffer) <=24:
+                        updateUhrzeit(Uhrzeit)
+                        message = f"Deine gewählte Uhrzeit ist: {buffer}:00 Uhr"
+                        Uhrzeit = buffer
+                    else:
+                        message = "Fehlerhafte Eingabe der Uhrzeit. Bitte nur eine maximal zweistellige Stundenzahl eingeben."
+                else:
+                    message = "Fehlerhafte Eingabe der Uhrzeit. Bitte nur Zahlen eingeben.\n" \
+                              "Beispiel: Uhrzeit 17"
+            bot.sendMessage(telegram_chat_id, message)  # and sends it
 
         if msg['text'] == 'Verspätung':# handle Verspäterung command
             for i, train in enumerate(trains_with_changes):
@@ -215,6 +225,15 @@ def handle_messages(msg):
                 except:
                     message = f"Fehlerhafte Eingabe. Bitte überprüfe die Namen der Bahnhöfe."
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
+            if msg['text'] == 'info':
+                if Uhrzeit == 0:
+                    message = f"Eingestellter Bahnhof: {Bahnhof}\n" \
+                              f"Eingestellte Uhrzeit: aktuelle Uhrzeit"
+                else:
+                    message = f"Eingestellter Bahnhof: {Bahnhof}\n" \
+                              f"Eingestellte Uhrzeit: {Uhrzeit}:00 Uhr"
+                bot.sendMessage(telegram_chat_id, message)  # and sends it
+
 
 def watchdog(start, ziel,hour, min):
     global watchdog_State
