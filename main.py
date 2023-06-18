@@ -26,22 +26,21 @@ trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour
 
 
 
-def updateBahnhof(Bahnhof):
+def updateBahnhof(Bahnhof,Uhrzeit):
     global found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes
     station_helper = StationHelper()
     station_helper.load_stations()
     # found_stations = station_helper.find_stations_by_lat_long(47.996713, 7.842174, 10)
+    timetable_helper = TimetableHelper(station=station, api_authentication=api)
     found_stations_by_name = station_helper.find_stations_by_name(Bahnhof)
     try:
         station = found_stations_by_name[0]
 
     except:
         return 0
-
-    timetable_helper = TimetableHelper(station=station, api_authentication=api)
-
-
+    trains_in_this_hour = timetable_helper.get_timetable(Uhrzeit)
     trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour)
+
 
     return 1   #no error
 # Hier gehts los mit der Sortierung
@@ -133,8 +132,8 @@ def handle_messages(msg):
             message = msg['text']
             if message.startswith('Bahnhof'):  # set station
                 Bahnhof = message.split(' ', 1)[1]
-                if updateBahnhof(Bahnhof) ==1:
-                    updateBahnhof(Bahnhof)
+                if updateBahnhof(Bahnhof,Uhrzeit) ==1:
+                    updateBahnhof(Bahnhof,Uhrzeit)
                     message = "Dein gewählter Bahnhof ist: " + Bahnhof
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
                 else:
@@ -149,7 +148,13 @@ def handle_messages(msg):
                 message = "Deine gewählte Uhrzeit ist: " + Uhrzeit +":00"
                 bot.sendMessage(telegram_chat_id, message)  # and sends it
 
-
+        if msg['text'] == 'Verspätung':
+            for i, train in enumerate(trains_with_changes):
+                if (int(train.train_changes.departure) - int(train.departure)) >= 5:
+                    message = f"Zug {i + 1} \n departure= {reverse_split(train.train_changes.departure)} \n Verspätung = {int(train.train_changes.departure) - int(train.departure)} Minuten\n" \
+                              f"platform = {train.platform} \n stations = {train.stations} \n  " \
+                            f"train_number = {train.train_number} \n train_type = {train.train_type} \n "
+                    bot.sendMessage(telegram_chat_id, message)  # and sends it
 
 
 
