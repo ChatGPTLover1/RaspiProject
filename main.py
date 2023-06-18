@@ -149,8 +149,20 @@ def handle_messages(msg):
                 bot.sendMessage(telegram_chat_id, message)
 
         if msg['text'] == 'hilfe':  # user is kind
-            message = f"Menü:\n1. Züge - zeigt alle züge in der angegebenen Stunde an\n2. Bahnhof [neuer Bahnhof]\n ändert den aktuellen Bahnhof\n" \
-                      f"\n3. Uhrzeit [neue Uhrzeit]\n ändert die Uhrezit für den Zeitplan.\n Für die aktuelle Uhrzeit 0 eingeben\n"  # bot prepares a welcoming message
+            #message = f"Menü:\n1. Züge - zeigt alle züge in der angegebenen Stunde an\n2. Bahnhof [neuer Bahnhof]\n ändert den aktuellen Bahnhof\n" \
+            #          f"3. Uhrzeit [neue Uhrzeit]\n ändert die Uhrezit für den Zeitplan.\n Für die aktuelle Uhrzeit 0 eingeben\n"  # bot prepares a welcoming message
+            message = f"Menü:\n" \
+                      f"1. Züge\n" \
+                      f"   - zeigt alle züge in der angegebenen Stunde an\n\n" \
+                      f"2. Bahnhof [neuer Bahnhof]\n" \
+                      f"   - ändert den aktuellen Bahnhof\n\n" \
+                      f"3. Uhrzeit [neue Uhrzeit]\n" \
+                      f"   - ändert die Uhrezit für den Zeitplan.Für die aktuelle Uhrzeit 0 eingeben\n\n" \
+                      f"4. Verspätung\n" \
+                      f"   - zeigt alle Verspätungen am eingestellten Bahnhof zur eingestellten Uhrzeit an.\n\n" \
+                      f"5. watch:[start Bahnhof]:[ziel Bahnhof]:[Stunde]:[Minute]\n" \
+                      f"   - startet die Überwachung für die gegebene Zugverbindung. Sobald eine Verspätung von über" \
+                      f" 5 Minuten erkannt wurde, wird eine Nachricht geschickt und die Überwachung beendet."
             bot.sendMessage(telegram_chat_id, message)  # and sends it
 
         if msg['text']:# handle Bahnhof command
