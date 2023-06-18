@@ -120,7 +120,17 @@ def reverse_split(string):
 
 def delay(train):
     if hasattr(train.train_changes,"departure"):
-        delay = int(train.train_changes.departure) - int(train.departure)
+
+        hour2 = train.train_changes.departure[6] +  train.train_changes.departure[7]     #new departure hour
+        hour1 = train.departure[6] + train.departure[7]     #old departure hour
+
+        min2 = train.train_changes.departure[8] + train.train_changes.departure[9]   #new departure min
+        min1 = train.departure[8] + train.departure[9]   #old departure min
+
+        hour = int(hour2)-int(hour1)    #calculate how many hours/mins delay
+        min = int(min2) - int(min1)
+        delay= hour*60+min  #convert to mins
+
         return delay
     else:
         return 0
