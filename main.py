@@ -207,24 +207,32 @@ def handle_messages(msg):
 
         if msg['text']:  # handle watch command
             message = msg['text']
-            if message.startswith('watch'):  # set station
+            if message.startswith('watch'):  # user input is divided with ":". Filtering the given information for futher processing
                 meinBahnhof = message.split(':', 4)[1]
                 zielBahnhof = message.split(':', 4)[2]
                 hour = message.split(':', 4)[3]
                 min = message.split(':', 4)[4]
-                if hour.isnumeric() and min.isnumeric() ==1:
+                if hour.isnumeric() and min.isnumeric() ==1:    #error handling: only numbers for time input allowed
                     hour = int(hour)
                     min = int(min)
                     try:
-                        station_helper.find_stations_by_name(meinBahnhof)[0]  # check if station name exists
-                        station_helper.find_stations_by_name(zielBahnhof)[0]  # check if station name exists
-                        if 0 <= hour <= 24 and 0 <= min <= 60:
+                        station_helper.find_stations_by_name(meinBahnhof)[0]  # check if start station name exists
+                        station_helper.find_stations_by_name(zielBahnhof)[0]  # check if end station name exists
+                        if 0 <= hour <= 24 and 0 <= min <= 60:  #only specific numbers allowed
+                            trains_at_given_hour = timetable_helper.get_timetable(hour) #get train data from api
+                            trains_with_changes = timetable_helper.get_timetable_changes(trains_at_given_hour)
+                            flag =0 #flag to check if train actually exists
 
-                            #ttodo: check if train at this time exists
+                            for i, train in enumerate(trains_with_changes): #check all trains in given hour to find if the one at given hour+minute exists
 
-                            message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof} um {hour}:{min} Uhr"
-                            bot.sendMessage(telegram_chat_id, message)  # and sends it
-                            watchdog_State = "S_ON"
+                                if str(hour)+str(min) in train.departure and zielBahnhof in train.stations:
+                                    message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof} um {hour}:{min} Uhr"
+                                    flag =1 # train detected
+                                    bot.sendMessage(telegram_chat_id, message)  # and sends it
+                                    watchdog_State = "S_ON"
+                            if flag == 0:   #no train detected
+                                message = f"Die gewählte Zugverbindung existiert nicht. Bitte Eingabe überprüfen."
+                                bot.sendMessage(telegram_chat_id, message)  # and sends it
                         else:
                             message = f"Fehlerhafte Eingabe. Bitte überprüfe die eingegebene Uhrzeit."
                             bot.sendMessage(telegram_chat_id, message)  # and sends it
