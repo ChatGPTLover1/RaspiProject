@@ -6,19 +6,17 @@ from deutsche_bahn_api.timetable_helper import TimetableHelper
 import telepot
 from telepot.loop import MessageLoop
 
-
-
 api = ApiAuthentication("4d92b50e16b9e7a97f9a95d55a08570e", "3ac2ae0cd903b5aa9315ebf338addbaf")
 success: bool = api.test_credentials()
-Bahnhof = "Hamburg Hbf" # default station
-Uhrzeit = 0 #
+Bahnhof = "Hamburg Hbf"  # default station
+Uhrzeit = 0  #
 
-meinBahnhof ="Hamburg Hbf"  #starting trainstation has to exist to prevent errors
-zielBahnhof ="0"
-hour =0
-min=0
+meinBahnhof = "Hamburg Hbf"  # starting trainstation has to exist to prevent errors
+zielBahnhof = "0"
+hour = 0
+min = 0
 
-watchdog_State="S_OFF"
+watchdog_State = "S_OFF"
 
 station_helper = StationHelper()
 station_helper.load_stations()
@@ -33,8 +31,7 @@ trains_in_this_hour = timetable_helper.get_timetable(Uhrzeit)
 trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour)
 
 
-
-def updateBahnhof(Bahnhof,Uhrzeit):
+def updateBahnhof(Bahnhof, Uhrzeit):
     global found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes
     station_helper = StationHelper()
     station_helper.load_stations()
@@ -49,22 +46,23 @@ def updateBahnhof(Bahnhof,Uhrzeit):
     trains_in_this_hour = timetable_helper.get_timetable(Uhrzeit)
     trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour)
 
+    return 1  # no error
 
-    return 1   #no error
+
 # Hier gehts los mit der Sortierung
-#metronometrains = [train for train in trains_in_this_hour if
+# metronometrains = [train for train in trains_in_this_hour if
 #                   train.train_type == "ME"]  # sortiere  die Liste nach dem Zugtyp Metronom
-#Delayed_metronom_trains_LG_to_HH = [train for train in metronometrains if
+# Delayed_metronom_trains_LG_to_HH = [train for train in metronometrains if
 #                                    train.stations == "Winsen(Luhe)|Hamburg-Harburg|Hamburg Hbf"]  # sortiere Liste von Metronom Zügen nach Zielbahnhof
-#print(trains_with_changes)
+# print(trains_with_changes)
 
 # hallo hallo hallo
 
 # Erster Kommentar vom GITGott Lukas
 
 # Hier erfolgt eine Ausgabe auf der Konsole
-#print("Delayed Metronom Trains from Lüneburg to Hamburg:")
-#for i, train in enumerate(Delayed_metronom_trains_LG_to_HH):
+# print("Delayed Metronom Trains from Lüneburg to Hamburg:")
+# for i, train in enumerate(Delayed_metronom_trains_LG_to_HH):
 #    print(f"{i} = {train}")
 #    print(f"  departure = {train.departure}")
 #    print(f"  platform = {train.platform}")
@@ -90,50 +88,52 @@ def updateUhrzeit(Uhrzeit):
 
     trains_with_changes = timetable_helper.get_timetable_changes(trains_in_this_hour)
 
-    return 1   #no error
+    return 1  # no error
 
 
-telegram_bot_token = '5903546968:AAGV8-1QjiyYa3SpGh0R_QfC_N0rxB7OUvs'
+telegram_bot_token = '6021930981:AAFhsTB6Ahe7MXtCh6R20EnyltWi_Q10MZs'
 
 # Chat-ID des Empfängers - Lukas Bot aktuell
-telegram_chat_id = '5877570960'
+telegram_chat_id = '6235783485'
+
 
 def reverse_split(string):
-
-    msg_year = string[0]; #year
+    msg_year = string[0];  # year
     msg_year2 = string[1];  # year
 
-    msg_month = string[2]; #month
+    msg_month = string[2];  # month
     msg_month2 = string[3];  # month
 
-    msg_day = string[4]; #day
+    msg_day = string[4];  # day
     msg_day2 = string[5];  # day
 
-    msg_hour = string[6]; #hour
+    msg_hour = string[6];  # hour
     msg_hour2 = string[7];  # hour
 
-    msg_minute = string[8]; #minute
+    msg_minute = string[8];  # minute
     msg_minute2 = string[9];  # minute
 
-    msg = msg_hour + msg_hour2 + ":" + msg_minute +msg_minute2 + "   " +msg_day + msg_day2 +"."+ msg_month + msg_month2 +"."+ msg_year + msg_year2
+    msg = msg_hour + msg_hour2 + ":" + msg_minute + msg_minute2 + "   " + msg_day + msg_day2 + "." + msg_month + msg_month2 + "." + msg_year + msg_year2
     return msg
 
+
 def delay(train):
-    if hasattr(train.train_changes,"departure"):
+    if hasattr(train.train_changes, "departure"):
 
-        hour2 = train.train_changes.departure[6] +  train.train_changes.departure[7]     #new departure hour
-        hour1 = train.departure[6] + train.departure[7]     #old departure hour
+        hour2 = train.train_changes.departure[6] + train.train_changes.departure[7]  # new departure hour
+        hour1 = train.departure[6] + train.departure[7]  # old departure hour
 
-        min2 = train.train_changes.departure[8] + train.train_changes.departure[9]   #new departure min
-        min1 = train.departure[8] + train.departure[9]   #old departure min
+        min2 = train.train_changes.departure[8] + train.train_changes.departure[9]  # new departure min
+        min1 = train.departure[8] + train.departure[9]  # old departure min
 
-        hour = int(hour2)-int(hour1)    #calculate how many hours/mins delay
+        hour = int(hour2) - int(hour1)  # calculate how many hours/mins delay
         min = int(min2) - int(min1)
-        delay= hour*60+min  #convert to mins
+        delay = hour * 60 + min  # convert to mins
 
         return delay
     else:
         return 0
+
 
 def handle_messages(msg):
     global Bahnhof, found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes, Uhrzeit
@@ -143,13 +143,13 @@ def handle_messages(msg):
     if content_type == 'text':  # glance checks the message type. If the type is in the form of text, we have a valid message
         if msg['text'] == 'Züge':  # user input
             for i, train in enumerate(trains_in_this_hour):
-                message = f"Zug {i+1} \n departure= {reverse_split(train.departure)} \n  platform = {train.platform} \n stations = {train.stations} \n  " \
+                message = f"Zug {i + 1} \n departure= {reverse_split(train.departure)} \n  platform = {train.platform} \n stations = {train.stations} \n  " \
                           f"train_number = {train.train_number} \n train_type = {train.train_type} \n "
 
                 bot.sendMessage(telegram_chat_id, message)
 
         if msg['text'] == 'hilfe':  # user is kind
-            #message = f"Menü:\n1. Züge - zeigt alle züge in der angegebenen Stunde an\n2. Bahnhof [neuer Bahnhof]\n ändert den aktuellen Bahnhof\n" \
+            # message = f"Menü:\n1. Züge - zeigt alle züge in der angegebenen Stunde an\n2. Bahnhof [neuer Bahnhof]\n ändert den aktuellen Bahnhof\n" \
             #          f"3. Uhrzeit [neue Uhrzeit]\n ändert die Uhrezit für den Zeitplan.\n Für die aktuelle Uhrzeit 0 eingeben\n"  # bot prepares a welcoming message
             message = f"Menü:\n" \
                       f"1. Züge\n" \
@@ -167,24 +167,24 @@ def handle_messages(msg):
                       f"   - zeigt den eingestellten Bahnhof und Uhrzeit an."
             bot.sendMessage(telegram_chat_id, message)  # and sends it
 
-        if msg['text']:# handle Bahnhof command
+        if msg['text']:  # handle Bahnhof command
             message = msg['text']
             if message.startswith('Bahnhof'):  # set station
                 Bahnhof = message.split(' ', 1)[1]
-                if updateBahnhof(Bahnhof,Uhrzeit) ==1:
-                    updateBahnhof(Bahnhof,Uhrzeit)
+                if updateBahnhof(Bahnhof, Uhrzeit) == 1:
+                    updateBahnhof(Bahnhof, Uhrzeit)
                     message = "Dein gewählter Bahnhof ist: " + Bahnhof
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
                 else:
                     message = "Fehlerhafte Eingabe. Bitte überprüfe den Namen des Bahnhofs."
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
 
-        if msg['text']:# handle Uhrzeit command
+        if msg['text']:  # handle Uhrzeit command
             message = msg['text']
             if message.startswith('Uhrzeit'):  # set station
                 buffer = message.split(' ', 1)[1]
-                if buffer.isnumeric(): #check if there are only numbers in the string
-                    if 0<= int(buffer) <=24:
+                if buffer.isnumeric():  # check if there are only numbers in the string
+                    if 0 <= int(buffer) <= 24:
                         updateUhrzeit(Uhrzeit)
                         message = f"Deine gewählte Uhrzeit ist: {buffer}:00 Uhr"
                         Uhrzeit = buffer
@@ -193,18 +193,18 @@ def handle_messages(msg):
                 else:
                     message = "Fehlerhafte Eingabe der Uhrzeit. Bitte nur Zahlen eingeben.\n" \
                               "Beispiel: Uhrzeit 17"
-            bot.sendMessage(telegram_chat_id, message)  # and sends it
+                bot.sendMessage(telegram_chat_id, message)  # and sends it
 
-        if msg['text'] == 'Verspätung':# handle Verspäterung command
+        if msg['text'] == 'Verspätung':  # handle Verspäterung command
             for i, train in enumerate(trains_with_changes):
                 if delay(train) >= 5:
                     message = f"Zug {i + 1} \nold departure= {reverse_split(train.departure)} \nnew departure= {reverse_split(train.train_changes.departure)}\n" \
                               f"Verspätung = {delay(train)} Minuten\n" \
                               f"platform = {train.platform} \nstations = {train.stations} \n" \
-                            f"train_number = {train.train_number} \ntrain_type = {train.train_type} \n "
+                              f"train_number = {train.train_number} \ntrain_type = {train.train_type} \n "
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
 
-        if msg['text']: # handle watch command
+        if msg['text']:  # handle watch command
             message = msg['text']
             if message.startswith('watch'):  # set station
                 meinBahnhof = message.split(':', 4)[1]
@@ -212,15 +212,15 @@ def handle_messages(msg):
                 hour = int(message.split(':', 4)[3])
                 min = int(message.split(':', 4)[4])
                 try:
-                        station_helper.find_stations_by_name(meinBahnhof)[0] #check if station name exists
-                        station_helper.find_stations_by_name(zielBahnhof)[0]  # check if station name exists
-                        if 0 <= hour <= 24 and 0 <= min <= 60:
-                            message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof} um {hour}:{min} Uhr"
-                            bot.sendMessage(telegram_chat_id, message)  # and sends it
-                            watchdog_State = "S_ON"
-                        else:
-                            message = f"Fehlerhafte Eingabe. Bitte überprüfe die eingegebene Uhrzeit."
-                            bot.sendMessage(telegram_chat_id, message)  # and sends it
+                    station_helper.find_stations_by_name(meinBahnhof)[0]  # check if station name exists
+                    station_helper.find_stations_by_name(zielBahnhof)[0]  # check if station name exists
+                    if 0 <= hour <= 24 and 0 <= min <= 60:
+                        message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof} um {hour}:{min} Uhr"
+                        bot.sendMessage(telegram_chat_id, message)  # and sends it
+                        watchdog_State = "S_ON"
+                    else:
+                        message = f"Fehlerhafte Eingabe. Bitte überprüfe die eingegebene Uhrzeit."
+                        bot.sendMessage(telegram_chat_id, message)  # and sends it
 
                 except:
                     message = f"Fehlerhafte Eingabe. Bitte überprüfe die Namen der Bahnhöfe."
@@ -235,9 +235,9 @@ def handle_messages(msg):
                 bot.sendMessage(telegram_chat_id, message)  # and sends it
 
 
-def watchdog(start, ziel,hour, min):
+def watchdog(start, ziel, hour, min):
     global watchdog_State
-    departure = str(hour)+str(min)
+    departure = str(hour) + str(min)
     if "S_ON" == watchdog_State:
         station_helper = StationHelper()
         station_helper.load_stations()
@@ -251,11 +251,11 @@ def watchdog(start, ziel,hour, min):
 
         for i, train in enumerate(trains_with_changes):
             if ziel in train.stations:
-                if departure in train.departure: #identifying the train by planned time
+                if departure in train.departure:  # identifying the train by planned time
                     if delay(train) >= 5:
                         message = f"Dein Zug um {reverse_split(train.departure)[0:5]} Uhr von {start} nach " \
-                                f"{ziel} hat eine Verspätung von {delay(train)} minuten.\n" \
-                                f"Die neue Abfahrtzeit ist {reverse_split(train.train_changes.departure)[0:5]} Uhr."
+                                  f"{ziel} hat eine Verspätung von {delay(train)} minuten.\n" \
+                                  f"Die neue Abfahrtzeit ist {reverse_split(train.train_changes.departure)[0:5]} Uhr."
                         bot.sendMessage(telegram_chat_id, message)  # and sends it
                         watchdog_State = "S_OFF"
 
