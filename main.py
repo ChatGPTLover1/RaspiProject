@@ -91,10 +91,10 @@ def updateUhrzeit(Uhrzeit):
     return 1  # no error
 
 
-telegram_bot_token = '6021930981:AAFhsTB6Ahe7MXtCh6R20EnyltWi_Q10MZs'
+telegram_bot_token = '5903546968:AAGV8-1QjiyYa3SpGh0R_QfC_N0rxB7OUvs'
 
 # Chat-ID des Empfängers - Lukas Bot aktuell
-telegram_chat_id = '6235783485'
+telegram_chat_id = '5877570960'
 
 
 def reverse_split(string):
@@ -185,9 +185,10 @@ def handle_messages(msg):
                 buffer = message.split(' ', 1)[1]
                 if buffer.isnumeric():  # check if there are only numbers in the string
                     if 0 <= int(buffer) <= 24:
+                        Uhrzeit = buffer    # if everything is alright write to global variable
                         updateUhrzeit(Uhrzeit)
                         message = f"Deine gewählte Uhrzeit ist: {buffer}:00 Uhr"
-                        Uhrzeit = buffer
+
                     else:
                         message = "Fehlerhafte Eingabe der Uhrzeit. Bitte nur eine maximal zweistellige Stundenzahl eingeben."
                 else:
@@ -209,22 +210,32 @@ def handle_messages(msg):
             if message.startswith('watch'):  # set station
                 meinBahnhof = message.split(':', 4)[1]
                 zielBahnhof = message.split(':', 4)[2]
-                hour = int(message.split(':', 4)[3])
-                min = int(message.split(':', 4)[4])
-                try:
-                    station_helper.find_stations_by_name(meinBahnhof)[0]  # check if station name exists
-                    station_helper.find_stations_by_name(zielBahnhof)[0]  # check if station name exists
-                    if 0 <= hour <= 24 and 0 <= min <= 60:
-                        message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof} um {hour}:{min} Uhr"
-                        bot.sendMessage(telegram_chat_id, message)  # and sends it
-                        watchdog_State = "S_ON"
-                    else:
-                        message = f"Fehlerhafte Eingabe. Bitte überprüfe die eingegebene Uhrzeit."
-                        bot.sendMessage(telegram_chat_id, message)  # and sends it
+                hour = message.split(':', 4)[3]
+                min = message.split(':', 4)[4]
+                if hour.isnumeric() and min.isnumeric() ==1:
+                    hour = int(hour)
+                    min = int(min)
+                    try:
+                        station_helper.find_stations_by_name(meinBahnhof)[0]  # check if station name exists
+                        station_helper.find_stations_by_name(zielBahnhof)[0]  # check if station name exists
+                        if 0 <= hour <= 24 and 0 <= min <= 60:
 
-                except:
-                    message = f"Fehlerhafte Eingabe. Bitte überprüfe die Namen der Bahnhöfe."
+                            #ttodo: check if train at this time exists
+
+                            message = f"Überwachung gestartet:{meinBahnhof} - {zielBahnhof} um {hour}:{min} Uhr"
+                            bot.sendMessage(telegram_chat_id, message)  # and sends it
+                            watchdog_State = "S_ON"
+                        else:
+                            message = f"Fehlerhafte Eingabe. Bitte überprüfe die eingegebene Uhrzeit."
+                            bot.sendMessage(telegram_chat_id, message)  # and sends it
+
+                    except:
+                        message = f"Fehlerhafte Eingabe. Bitte überprüfe die Namen der Bahnhöfe."
+                        bot.sendMessage(telegram_chat_id, message)  # and sends it
+                else:
+                    message = f"Fehlerhafte Eingabe. Bitte überprüfe die eingegebene Uhrzeit."
                     bot.sendMessage(telegram_chat_id, message)  # and sends it
+
             if msg['text'] == 'info':
                 if Uhrzeit == 0:
                     message = f"Eingestellter Bahnhof: {Bahnhof}\n" \
@@ -257,6 +268,8 @@ def watchdog(start, ziel, hour, min):
                                   f"{ziel} hat eine Verspätung von {delay(train)} minuten.\n" \
                                   f"Die neue Abfahrtzeit ist {reverse_split(train.train_changes.departure)[0:5]} Uhr."
                         bot.sendMessage(telegram_chat_id, message)  # and sends it
+
+                        #ttodo: Ausgabe über GIO (LED)
                         watchdog_State = "S_OFF"
 
 
