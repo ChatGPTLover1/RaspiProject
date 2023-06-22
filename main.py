@@ -6,6 +6,13 @@ from deutsche_bahn_api.timetable_helper import TimetableHelper
 import telepot
 from telepot.loop import MessageLoop
 
+import header
+
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17,GPIO.OUT)
+
 api = ApiAuthentication("4d92b50e16b9e7a97f9a95d55a08570e", "3ac2ae0cd903b5aa9315ebf338addbaf")
 success: bool = api.test_credentials()
 Bahnhof = "Hamburg Hbf"  # default station
@@ -253,6 +260,10 @@ def handle_messages(msg):
                               f"Eingestellte Uhrzeit: {Uhrzeit}:00 Uhr"
                 bot.sendMessage(telegram_chat_id, message)  # and sends it
 
+            if msg['text'] == 'LED off':
+                header.LED_blink_OFF(17)
+                message = f"Alarm wurde ausgestellt."
+                bot.sendMessage(telegram_chat_id, message)
 
 def watchdog(start, ziel, hour, min):
     global watchdog_State
@@ -276,9 +287,10 @@ def watchdog(start, ziel, hour, min):
                                   f"{ziel} hat eine Verspätung von {delay(train)} minuten.\n" \
                                   f"Die neue Abfahrtzeit ist {reverse_split(train.train_changes.departure)[0:5]} Uhr."
                         bot.sendMessage(telegram_chat_id, message)  # and sends it
-
-                        #ttodo: Ausgabe über GIO (LED)
                         watchdog_State = "S_OFF"
+
+                        return 1
+        return 0
 
 
 # initialize Telegram-Bot
@@ -290,5 +302,6 @@ bot.getUpdates()
 MessageLoop(bot, handle_messages).run_as_thread()
 
 while 1:
-    watchdog(meinBahnhof, zielBahnhof, hour, min)
-    time.sleep(1)
+
+    if (watchdog(meinBahnhof, zielBahnhof, hour, min)):
+        header.LED_blink_ON(17)
