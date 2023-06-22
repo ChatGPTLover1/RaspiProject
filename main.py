@@ -6,12 +6,13 @@ from deutsche_bahn_api.timetable_helper import TimetableHelper
 import telepot
 from telepot.loop import MessageLoop
 
-import header
-
+#import header
 import RPi.GPIO as GPIO
+led =17
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(17,GPIO.OUT)
+GPIO.setup(led,GPIO.OUT)
+led_pwm = GPIO.PWM(led, 1)
 
 api = ApiAuthentication("4d92b50e16b9e7a97f9a95d55a08570e", "3ac2ae0cd903b5aa9315ebf338addbaf")
 success: bool = api.test_credentials()
@@ -55,34 +56,6 @@ def updateBahnhof(Bahnhof, Uhrzeit):
 
     return 1  # no error
 
-
-# Hier gehts los mit der Sortierung
-# metronometrains = [train for train in trains_in_this_hour if
-#                   train.train_type == "ME"]  # sortiere  die Liste nach dem Zugtyp Metronom
-# Delayed_metronom_trains_LG_to_HH = [train for train in metronometrains if
-#                                    train.stations == "Winsen(Luhe)|Hamburg-Harburg|Hamburg Hbf"]  # sortiere Liste von Metronom Zügen nach Zielbahnhof
-# print(trains_with_changes)
-
-# hallo hallo hallo
-
-# Erster Kommentar vom GITGott Lukas
-
-# Hier erfolgt eine Ausgabe auf der Konsole
-# print("Delayed Metronom Trains from Lüneburg to Hamburg:")
-# for i, train in enumerate(Delayed_metronom_trains_LG_to_HH):
-#    print(f"{i} = {train}")
-#    print(f"  departure = {train.departure}")
-#    print(f"  platform = {train.platform}")
-#    print(f"  stations = {train.stations}")
-#    print(f"  stop_id = {train.stop_id}")
-#    print(f"  train_changes = {train.train_changes}")
-#    print(f"  train_line = {train.train_line}")
-#    print(f"  train_number = {train.train_number}")
-#    print(f"  train_type = {train.train_type}")
-#    print(f"  trip_type = {train.trip_type}")
-
-# Telegram Teil Update
-# Token des Telegram-Bots
 def updateUhrzeit(Uhrzeit):
     global found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes
     station_helper = StationHelper()
@@ -261,12 +234,15 @@ def handle_messages(msg):
                 bot.sendMessage(telegram_chat_id, message)  # and sends it
 
             if msg['text'] == 'LED off':
-                header.LED_blink_OFF(17)
+                led_pwm.stop()
+                led_pwm.ChangeDutyCycle(50) #another initialization needed to make things work again
+                led_pwm.ChangeFrequency(1)
+
                 message = f"Alarm wurde ausgestellt."
                 bot.sendMessage(telegram_chat_id, message)
 
 def watchdog(start, ziel, hour, min):
-    global watchdog_State
+    global watchdog_State,LED_STATE
     departure = str(hour) + str(min)
     if "S_ON" == watchdog_State:
         station_helper = StationHelper()
@@ -302,6 +278,6 @@ bot.getUpdates()
 MessageLoop(bot, handle_messages).run_as_thread()
 
 while 1:
+    if(watchdog(meinBahnhof, zielBahnhof, hour, min)):
+        led_pwm.start(50)
 
-    if (watchdog(meinBahnhof, zielBahnhof, hour, min)):
-        header.LED_blink_ON(17)
