@@ -159,16 +159,18 @@ def handle_messages(msg):
                 bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
 
         if msg['text'] == 'Verspätung':  # handle Verspäterung command
+            delayFlag= False # flag used to handle cases where there are no delays
             for i, train in enumerate(trains_with_changes):
                 if functions.delay(train) >= delayThreshhold:   # look for all trains with relevant delay
                     message = f"Zug {i + 1} \nold departure= {functions.reverse_split(train.departure)} \nnew departure= {functions.reverse_split(train.train_changes.departure)}\n" \
                               f"Verspätung = {functions.delay(train)} Minuten\n" \
                               f"platform = {train.platform} \nstations = {train.stations} \n" \
                               f"train_number = {train.train_number} \ntrain_type = {train.train_type} \n "
+                    delayFlag=True
                     bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
-                else:
-                    message = f"Keine Verspätung vorhanden"
-                    bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
+            if delayFlag:
+                message = f"Keine Verspätung vorhanden"
+                bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
 
 
         if msg['text']:  # handle watch command
