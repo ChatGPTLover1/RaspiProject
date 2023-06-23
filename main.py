@@ -122,9 +122,9 @@ def handle_messages(msg):
                       f"   - startet die Überwachung für die gegebene Zugverbindung. Sobald eine Verspätung von über" \
                       f" 5 Minuten erkannt wurde, wird eine Nachricht geschickt, LED fängt an zu" \
                       f" blinken und die Überwachung wird beendet." \
-                      f" Die angeschlossene LED blinkt so lange bis sie per Kommando gestoppt wird.\n" \
-                      f"6. LED off" \
-                      f"   - schaltet die LED aus." \
+                      f" Die angeschlossene LED blinkt so lange bis sie per Kommando gestoppt wird.\n\n" \
+                      f"6. LED off\n" \
+                      f"   - schaltet die LED aus.\n\n" \
                       f"7. info\n" \
                       f"   - zeigt den eingestellten Bahnhof und Uhrzeit an."
             bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
