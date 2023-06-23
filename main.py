@@ -166,6 +166,10 @@ def handle_messages(msg):
                               f"platform = {train.platform} \nstations = {train.stations} \n" \
                               f"train_number = {train.train_number} \ntrain_type = {train.train_type} \n "
                     bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
+                else:
+                    message = f"Keine Verspätung vorhanden"
+                    bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
+
 
         if msg['text']:  # handle watch command
             message = msg['text']
