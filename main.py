@@ -101,10 +101,14 @@ def handle_messages(msg):
 
         if msg['text'] == 'Züge':
             # Checking all trains at the selected time and trainstation and gives information for all trains
+            trainFlag =False    # flag used to handle cases where there are no trains
             for i, train in enumerate(trains_in_this_hour):
                 message = f"Zug {i + 1} \n departure= {functions.reverse_split(train.departure)} \n  platform = {train.platform} \n stations = {train.stations} \n  " \
                           f"train_number = {train.train_number} \n train_type = {train.train_type} \n "
-
+                trainFlag=True
+                bot.sendMessage(telegramData.telegram_chat_id, message)
+            if trainFlag == False:
+                message = f"Keine Züge vorhanden."
                 bot.sendMessage(telegramData.telegram_chat_id, message)
 
         if msg['text'] == 'hilfe':
@@ -168,7 +172,7 @@ def handle_messages(msg):
                               f"train_number = {train.train_number} \ntrain_type = {train.train_type} \n "
                     delayFlag=True
                     bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
-            if delayFlag:
+            if delayFlag == False:
                 message = f"Keine Verspätung vorhanden"
                 bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
 
