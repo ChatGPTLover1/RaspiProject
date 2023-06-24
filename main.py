@@ -99,7 +99,7 @@ def handle_messages(msg):
     global Bahnhof, found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes, Uhrzeit
     global meinBahnhof, zielBahnhof, hour, min, watchdog_State
 
-    content_type, chat_type, chat_id = telegramData.telegram_chat_id
+    content_type, chat_type, chat_id = telegramData.telegram_chat_id    # only messages from this chat id are accepted
     if content_type == 'text':
 
         if msg['text'] == 'Züge':
