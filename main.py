@@ -1,5 +1,5 @@
 #   HAW Hamburg - Raspberry Pi, Summer Semester 2023
-#   Author: Linus Kohlmann, Lukas Rabuske, Selin Valerie Aslan
+#   Author: Linus Kohlmann, Lukas Rabuske, Selin  Arslan
 #   Last edit: 23.06.2023
 #
 #   Python program which is using the 'deutsche-bahn-api' to receive data regarding (delayed) trains.
@@ -17,19 +17,19 @@ from deutsche_bahn_api.station_helper import StationHelper
 from deutsche_bahn_api.timetable_helper import TimetableHelper
 import telepot
 from telepot.loop import MessageLoop
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 
 #   Selfmade files to import
 import telegramData
 import functions
 
 #   configuring the GPIO/LED
-# led =17     #   Using GPIO 17
-# dutyCycle= 50   #   LED on and off time should be equal
-# = 1   #   LED flashing with 1Hz
-# GPIO.setmode(GPIO.BCM)
-# GPIO.setup(led,GPIO.OUT)
-# led_pwm = GPIO.PWM(led, Frequency)  #
+led = 17  # Using GPIO 17
+dutyCycle = 50  # LED on and off time should be equal
+Frequency = 1  # LED flashing with 1Hz
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(led, GPIO.OUT)
+led_pwm = GPIO.PWM(led, Frequency)  #
 
 #   entering key to get acces to api
 api = ApiAuthentication("4d92b50e16b9e7a97f9a95d55a08570e", "3ac2ae0cd903b5aa9315ebf338addbaf")
@@ -99,7 +99,7 @@ def handle_messages(msg):
     global Bahnhof, found_stations_by_name, station, station_helper, timetable_helper, trains_in_this_hour, trains_with_changes, Uhrzeit
     global meinBahnhof, zielBahnhof, hour, min, watchdog_State
 
-    content_type, chat_type, chat_id = telepot.glance(msg)    # only messages from this chat id are accepted
+    content_type, chat_type, chat_id = telepot.glance(msg)  # only messages from this chat id are accepted
     if content_type == 'text' and str(chat_id) == telegramData.telegram_chat_id:
 
         if msg['text'] == 'Züge':
