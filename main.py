@@ -242,26 +242,32 @@ def watchdog(start, ziel, hour, min):
                                      # with the departure string given by api
     if "S_ON" == watchdog_State:
         # calling api necessary to detect changes in timetable
-        station_helper = StationHelper()
-        station_helper.load_stations()
-        found_stations_by_name = station_helper.find_stations_by_name(start)
-        station = found_stations_by_name[0]
 
-        timetable_helper = TimetableHelper(station=station, api_authentication=api)
-        trains_at_given_hour = timetable_helper.get_timetable(hour)
-        trains_with_changes = timetable_helper.get_timetable_changes(trains_at_given_hour)
+        try:
+            station_helper = StationHelper()
+            station_helper.load_stations()
+            found_stations_by_name = station_helper.find_stations_by_name(start)
+            station = found_stations_by_name[0]
 
-        for i, train in enumerate(trains_with_changes): # cycling through trains and filtering by given information
-            if ziel in train.stations:
-                if departure in train.departure:  # identifying the train by planned time
-                    if functions.delay(train) >= delayThreshhold:
-                        message = f"Dein Zug um {functions.reverse_split(train.departure)[0:5]} Uhr von {start} nach " \
-                                  f"{ziel} hat eine Verspätung von {functions.delay(train)} minuten.\n" \
-                                  f"Die neue Abfahrtzeit ist {functions.reverse_split(train.train_changes.departure)[0:5]} Uhr."
-                        bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
-                        watchdog_State = "S_OFF"
+            timetable_helper = TimetableHelper(station=station, api_authentication=api)
+            trains_at_given_hour = timetable_helper.get_timetable(hour)
+            trains_with_changes = timetable_helper.get_timetable_changes(trains_at_given_hour)
 
-                        return 1    # delay got detected, watchdog turning off
+            for i, train in enumerate(trains_with_changes): # cycling through trains and filtering by given information
+                if ziel in train.stations:
+                    if departure in train.departure:  # identifying the train by planned time
+                        if functions.delay(train) >= delayThreshhold:
+                            message = f"Dein Zug um {functions.reverse_split(train.departure)[0:5]} Uhr von {start} nach " \
+                                    f"{ziel} hat eine Verspätung von {functions.delay(train)} minuten.\n" \
+                                    f"Die neue Abfahrtzeit ist {functions.reverse_split(train.train_changes.departure)[0:5]} Uhr."
+                            bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
+                            watchdog_State = "S_OFF"
+
+                            return 1    # delay got detected, watchdog turning off
+        except:
+            message = f"Etwas ist schief gelaufen. Überwachung wurde beendet."
+            bot.sendMessage(telegramData.telegram_chat_id, message)  # and sends it
+            watchdog_State = "S_OFF"
         return 0
 
 
