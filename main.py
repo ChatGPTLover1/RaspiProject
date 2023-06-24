@@ -1,5 +1,5 @@
 #   HAW Hamburg - Raspberry Pi, Summer Semester 2023
-#   Author: Linus Kohlmann, Lukas Rabuske, Selin Valerie
+#   Author: Linus Kohlmann, Lukas Rabuske, Selin Valerie Aslan
 #   Last edit: 23.06.2023
 #
 #   Python program which is using the 'deutsche-bahn-api' to receive data regarding (delayed) trains.
