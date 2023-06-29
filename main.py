@@ -22,6 +22,7 @@ import RPi.GPIO as GPIO
 #   Selfmade files to import
 import telegramData
 import functions
+import time
 
 #   configuring the GPIO/LED
 led = 17  # Using GPIO 17
@@ -287,5 +288,6 @@ MessageLoop(bot, handle_messages).run_as_thread()  # message handle for  the tel
 
 # Endless loop to repeatedly check for train delay on given connection. If delay gets detected, LED will start flashing.
 while 1:
+    time.sleep(10)
     if (watchdog(meinBahnhof, zielBahnhof, hour, min)):
         led_pwm.start(50)
